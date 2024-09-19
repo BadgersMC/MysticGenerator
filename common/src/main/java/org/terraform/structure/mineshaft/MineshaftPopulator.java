@@ -29,22 +29,11 @@ public class MineshaftPopulator extends JigsawStructurePopulator {
             return false;
         }
 
-        // MegaChunk mc = new MegaChunk(chunkX, chunkZ);
-        // int[] coords = mc.getCenterBiomeSectionBlockCoords();
-
         // Do not spawn mineshafts under deep oceans, there's no space.
         if (biome.getType() == BiomeType.DEEP_OCEANIC) {
             return false;
+
         }
-
-        // Don't compete with badlandsmine for space
-        if (biome == BiomeBank.BADLANDS_CANYON) {
-            return false;
-        }
-
-        // Do height and space checks
-        // In the interest of optimisation, this check will not be performed.
-
         return rollSpawnRatio(tw, chunkX, chunkZ);
     }
 

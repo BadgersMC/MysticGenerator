@@ -38,11 +38,7 @@ public class VillagePopulator extends SingleMegaChunkStructurePopulator {
 
         // Height no longer checked in the interest of speed.
 
-        if (biome == (BiomeBank.PLAINS)
-            || biome == (BiomeBank.FOREST)
-            || biome == (BiomeBank.SAVANNA)
-            || biome == (BiomeBank.TAIGA)
-            || biome == (BiomeBank.SUNFORGED_LAND)
+        if (biome == (BiomeBank.BOGWALKER_LAND)
             || biome == (BiomeBank.GLACIERBORN_LAND)
             || biome == (BiomeBank.LEAFSTRIDER_LAND))
         {
@@ -90,12 +86,8 @@ public class VillagePopulator extends SingleMegaChunkStructurePopulator {
     @Override
     public boolean isEnabled() {
         return TConfig.areStructuresEnabled()
-               && (BiomeBank.isBiomeEnabled(BiomeBank.PLAINS)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.FOREST)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.SAVANNA)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.TAIGA)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.LEAFSTRIDER_LAND)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.SUNFORGED_LAND)
+               && (BiomeBank.isBiomeEnabled(BiomeBank.LEAFSTRIDER_LAND)
+                   || BiomeBank.isBiomeEnabled(BiomeBank.BOGWALKER_LAND)
                    || BiomeBank.isBiomeEnabled(BiomeBank.GLACIERBORN_LAND))
                && TConfig.c.STRUCTURES_PLAINSVILLAGE_ENABLED;
     }

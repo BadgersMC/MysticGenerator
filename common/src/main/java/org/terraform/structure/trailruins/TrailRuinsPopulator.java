@@ -22,7 +22,7 @@ public class TrailRuinsPopulator extends SingleMegaChunkStructurePopulator {
             return false;
         }
 
-        if (biome == (BiomeBank.TAIGA) || biome == (BiomeBank.SNOWY_TAIGA) || biome == (BiomeBank.JUNGLE)) {
+        if (biome == (BiomeBank.LEAFSTRIDER_LAND) || biome == (BiomeBank.BOGWALKER_LAND) || biome == (BiomeBank.GLACIERBORN_LAND)) {
             return rollSpawnRatio(tw, chunkX, chunkZ);
         }
         return false;
@@ -102,13 +102,10 @@ public class TrailRuinsPopulator extends SingleMegaChunkStructurePopulator {
     @Override
     public boolean isEnabled() {
         return TConfig.areStructuresEnabled()
-               && (BiomeBank.isBiomeEnabled(BiomeBank.TAIGA)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.SNOWY_TAIGA)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.JUNGLE))
-                   || BiomeBank.isBiomeEnabled(BiomeBank.LEAFSTRIDER_LAND)
-                   || BiomeBank.isBiomeEnabled(BiomeBank.SUNFORGED_LAND)
+               && (BiomeBank.isBiomeEnabled(BiomeBank.LEAFSTRIDER_LAND)
+                   || BiomeBank.isBiomeEnabled(BiomeBank.BOGWALKER_LAND)
                    || BiomeBank.isBiomeEnabled(BiomeBank.GLACIERBORN_LAND)
-               && TConfig.c.STRUCTURES_TRAILRUINS_ENABLED;
+               && TConfig.c.STRUCTURES_TRAILRUINS_ENABLED);
     }
 
     private boolean rollSpawnRatio(@NotNull TerraformWorld tw, int chunkX, int chunkZ) {

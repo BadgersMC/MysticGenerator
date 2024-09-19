@@ -259,7 +259,7 @@ public class AnimalFarmPopulator extends VillageHousePopulator {
 
             int animalCount = GenUtils.randInt(3, 7);
             EntityType animal = farmAnimals[random.nextInt(farmAnimals.length)];
-            if (Version.isAtLeast(20) && pens == 0 && biome.getClimate() == BiomeClimate.HOT_BARREN) {
+            if (Version.isAtLeast(20) && pens == 0 && biome.getClimate() == BiomeClimate.DRY_VEGETATION) {
                 animal = OneTwentyBlockHandler.CAMEL;
                 animalCount = 2;
             }

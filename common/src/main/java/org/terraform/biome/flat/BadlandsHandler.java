@@ -26,6 +26,11 @@ import org.terraform.utils.noise.NoiseCacheHandler.NoiseCacheEntry;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * @deprecated This class is deprecated because it's now integrated in MuddyBogHandler (AKA: BOGWALKER_LAND)
+ * Please use {@link MuddyBogHandler} instead.
+ */
+@Deprecated
 public class BadlandsHandler extends BiomeHandler {
     static final int sandRadius = TConfig.c.BIOME_BADLANDS_PLATEAU_SAND_RADIUS;
     static final int plateauHeight = TConfig.c.BIOME_BADLANDS_PLATEAU_HEIGHT;

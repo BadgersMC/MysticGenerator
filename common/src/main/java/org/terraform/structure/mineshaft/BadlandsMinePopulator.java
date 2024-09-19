@@ -40,10 +40,6 @@ public class BadlandsMinePopulator extends JigsawStructurePopulator {
             return false;
         }
 
-        if (biome != BiomeBank.BADLANDS_CANYON) {
-            return false;
-        }
-
         // what the fuck is this
         /*
          * // randomObjectPositions returns chunk positions here for (Vector2f pos :
@@ -72,7 +68,6 @@ public class BadlandsMinePopulator extends JigsawStructurePopulator {
     @Override
     public boolean isEnabled() {
         return TConfig.areStructuresEnabled()
-               && BiomeBank.isBiomeEnabled(BiomeBank.BADLANDS_CANYON)
                && TConfig.c.STRUCTURES_BADLANDS_MINE_ENABLED;
     }
 

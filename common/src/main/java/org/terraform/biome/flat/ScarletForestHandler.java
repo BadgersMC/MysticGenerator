@@ -77,8 +77,11 @@ public class ScarletForestHandler extends BiomeHandler {
     }
 
     @Override
-    public void populateLargeItems(@NotNull TerraformWorld tw, Random random, @NotNull PopulatorDataAbstract data) {
+    public void populateLargeItems(@NotNull TerraformWorld tw,
+                                   @NotNull Random random,
+                                   @NotNull PopulatorDataAbstract data) {
 
+        // Trees or other large features
         SimpleLocation[] trees = GenUtils.randomObjectPositions(tw, data.getChunkX(), data.getChunkZ(), 16);
 
         for (SimpleLocation sLoc : trees) {
@@ -87,23 +90,43 @@ public class ScarletForestHandler extends BiomeHandler {
             sLoc.setY(treeY);
 
             if (tw.getBiomeBank(sLoc.getX(), sLoc.getZ()) == BiomeBank.LEAFSTRIDER_LAND
-                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ())))
-            {
-                if (TConfig.c.TREES_SCARLET_BIG_ENABLED) {
-                    new FractalTreeBuilder(FractalTypes.Tree.SCARLET_BIG).build(tw,
-                            data,
-                            sLoc.getX(),
-                            sLoc.getY(),
-                            sLoc.getZ()
-                    );
-                }
-                else {
-                    new FractalTreeBuilder(FractalTypes.Tree.SCARLET_SMALL).build(tw,
-                            data,
-                            sLoc.getX(),
-                            sLoc.getY(),
-                            sLoc.getZ()
-                    );
+                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ()))) {
+
+                switch (random.nextInt(25)) { // Increase range for more tree options (0 to 24)
+
+                    case 24, 23 -> // DARK_OAK_SMALL (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.DARK_OAK_SMALL).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 22 -> { // BIRCH_SMALL (1/25) - Less common
+                        if (GenUtils.chance(random, 1, 10)) { // 10% chance to spawn
+                            new FractalTreeBuilder(FractalTypes.Tree.BIRCH_SMALL).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                        }
+                    }
+
+                    case 21, 20 -> // JUNGLE_BIG (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.JUNGLE_BIG).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 19, 18 -> // FOREST_BIG (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.SCARLET_SMALL).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 17, 16, 15 -> // FOREST_SMALL (3/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.FOREST).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 14, 13, 12, 11, 10 -> { // SCARLET_BIG (5/25)
+                        if (TConfig.c.TREES_SCARLET_BIG_ENABLED) {
+                            new FractalTreeBuilder(FractalTypes.Tree.SCARLET_BIG).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                        }
+                    }
+
+                    default -> // SCARLET_SMALL (10/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.SCARLET_SMALL).build(
+                                    tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
                 }
 
                 TaigaHandler.replacePodzol(tw.getHashedRand(sLoc.getX(), sLoc.getY(), sLoc.getZ()).nextInt(9999),

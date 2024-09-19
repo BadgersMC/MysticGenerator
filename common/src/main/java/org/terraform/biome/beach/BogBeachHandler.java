@@ -30,7 +30,7 @@ public class BogBeachHandler extends BiomeHandler {
 
     @Override
     public @NotNull CustomBiomeType getCustomBiome() {
-        return CustomBiomeType.SUNFORGED_LAND;
+        return CustomBiomeType.BOGWALKER_LAND;
     }
 
     @Override

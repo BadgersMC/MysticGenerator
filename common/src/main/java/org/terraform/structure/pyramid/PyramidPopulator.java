@@ -495,7 +495,7 @@ public class PyramidPopulator extends SingleMegaChunkStructurePopulator {
         return TConfig.areStructuresEnabled()
                && BiomeBank.isBiomeEnabled(BiomeBank.DESERT)
                || BiomeBank.isBiomeEnabled(BiomeBank.LEAFSTRIDER_LAND)
-               || BiomeBank.isBiomeEnabled(BiomeBank.SUNFORGED_LAND)
+               || BiomeBank.isBiomeEnabled(BiomeBank.BOGWALKER_LAND)
                || BiomeBank.isBiomeEnabled(BiomeBank.GLACIERBORN_LAND)
                && TConfig.c.STRUCTURES_PYRAMID_ENABLED;
     }

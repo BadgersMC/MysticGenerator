@@ -110,7 +110,7 @@ public class WitchHutPopulator extends MultiMegaChunkStructurePopulator {
             if (coords[0] >> 4 == chunkX && coords[1] >> 4 == chunkZ) {
                 EnumSet<BiomeBank> biomes = GenUtils.getBiomesInChunk(tw, chunkX, chunkZ);
                 for (BiomeBank b : biomes) {
-                    if (b != BiomeBank.SWAMP && b != BiomeBank.MANGROVE) {
+                    if (b != BiomeBank.BOGWALKER_LAND) {
                         return false;
                     }
                 }

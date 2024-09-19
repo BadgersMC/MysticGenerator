@@ -37,7 +37,7 @@ public class BogRiverHandler extends BiomeHandler {
 
     @Override
     public @NotNull CustomBiomeType getCustomBiome() {
-        return CustomBiomeType.SUNFORGED_LAND;
+        return CustomBiomeType.BOGWALKER_LAND;
     }
 
 
@@ -89,7 +89,7 @@ public class BogRiverHandler extends BiomeHandler {
                 int height = (int) Math.round((maxHeight * noise));
 
                 if (tw.getBiomeBank(rawX, rawZ) != BiomeBank.BOG_RIVER
-                    && tw.getBiomeBank(rawX, rawZ) != BiomeBank.SUNFORGED_LAND
+                    && tw.getBiomeBank(rawX, rawZ) != BiomeBank.BOGWALKER_LAND
                     && tw.getBiomeBank(rawX, rawZ) != BiomeBank.BOG_BEACH)
                 {
                     height = 0;
@@ -122,7 +122,6 @@ public class BogRiverHandler extends BiomeHandler {
         new MuddyBogHandler().populateSmallItems(tw, random, rawX, surfaceY, rawZ, data);
 
         // Water decorations
-
         SimpleBlock block = new SimpleBlock(data, rawX, surfaceY, rawZ);
         if (BlockUtils.isWet(block.getUp())) {
 
@@ -132,6 +131,11 @@ public class BogRiverHandler extends BiomeHandler {
             // Generate clay
             if (GenUtils.chance(random, TConfig.c.BIOME_CLAY_DEPOSIT_CHANCE_OUT_OF_THOUSAND, 1000)) {
                 BlockUtils.generateClayDeposit(rawX, surfaceY, rawZ, data, random);
+            }
+
+            // Lily pads on water surface
+            if (block.getType() == Material.WATER && GenUtils.chance(random, 2, 10)) { // 10% chance for lilypad
+                block.getUp().setType(Material.LILY_PAD);
             }
         }
     }

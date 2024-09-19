@@ -264,10 +264,9 @@ public class OutpostPopulator extends SingleMegaChunkStructurePopulator {
         if (!biome.isDry()) {
             return false;
         }
-        if (biome == BiomeBank.DESERT
-            || biome == BiomeBank.SNOWY_WASTELAND
-            || biome == BiomeBank.BADLANDS
-            || biome == BiomeBank.BAMBOO_FOREST)
+        if (biome == BiomeBank.BOGWALKER_LAND
+            || biome == BiomeBank.LEAFSTRIDER_LAND
+            || biome == BiomeBank.GLACIERBORN_LAND)
         {
             return rollSpawnRatio(tw, chunkX, chunkZ);
         }

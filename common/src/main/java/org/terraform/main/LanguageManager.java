@@ -24,7 +24,7 @@ public class LanguageManager {
     }
 
     private void loadDefaults() {
-        fetchLang("permissions.insufficient", "&cYou don't have enough permissions to perform this action!");
+        fetchLang("permissions.insufficient", "&cPERMISSION DENIED! INSUFFICIENT PERMISSIONS! SHAME! ");
         fetchLang("command.wrong-arg-length", "&cToo many or too little arguments provided!");
         fetchLang("command.unknown", "&cUnknown subcommand.");
         fetchLang("command.help.postive-pages", "&cThe page specified must be a positive number!");

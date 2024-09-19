@@ -13,7 +13,7 @@ import java.util.logging.*;
 
 public class TLogger {
 
-    private static final Logger LOGGER = Logger.getLogger("TerraformGenerator-Custom");
+    private static final Logger LOGGER = Logger.getLogger("MysticBiomes-Custom");
     private static boolean suppressConsoleLogs = false;
 
     public TLogger() {
@@ -26,9 +26,9 @@ public class TLogger {
                 consoleHandler = new ConsoleHandler();
                 fileHandler = new FileHandler("plugins"
                                               + File.separator
-                                              + "TerraformGenerator"
+                                              + "MysticBiomes"
                                               + File.separator
-                                              + "terraform.log", true);
+                                              + "biomes.log", true);
 
                 // Follow bukkit format
                 fileHandler.setFormatter(new SimpleFormatter() {
@@ -72,7 +72,7 @@ public class TLogger {
 
     public void stdout(@NotNull String message) {
         Bukkit.getConsoleSender()
-              .sendMessage("[TerraformGenerator] " + ChatColor.translateAlternateColorCodes('&', message));
+              .sendMessage("-==[MysticBiomes]==- " + ChatColor.translateAlternateColorCodes('&', message));
 
         if (suppressConsoleLogs) {
             LOGGER.log(Level.INFO, " " + message);
@@ -85,7 +85,7 @@ public class TLogger {
         }
         else {
             Bukkit.getConsoleSender()
-                  .sendMessage(ChatColor.RED + "[TerraformGenerator][!] " + ChatColor.translateAlternateColorCodes(
+                  .sendMessage(ChatColor.RED + "-==[MysticBiomes]==- [ ! ]" + ChatColor.translateAlternateColorCodes(
                           '&',
                           message
                   ));
@@ -98,7 +98,7 @@ public class TLogger {
         }
         else {
             Bukkit.getConsoleSender()
-                  .sendMessage("[TerraformGenerator] " + ChatColor.translateAlternateColorCodes('&', message));
+                  .sendMessage("-==[MysticBiomes]==- " + ChatColor.translateAlternateColorCodes('&', message));
         }
     }
 
@@ -109,7 +109,7 @@ public class TLogger {
             }
             else {
                 Bukkit.getConsoleSender()
-                      .sendMessage("[TerraformGenerator][v] " + ChatColor.translateAlternateColorCodes('&', message));
+                      .sendMessage("[MysticBiomes][v] " + ChatColor.translateAlternateColorCodes('&', message));
             }
         }
     }
@@ -122,7 +122,7 @@ public class TLogger {
                 LOGGER.log(Level.SEVERE, "[!] " + message);
             }
             else {
-                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[TerraformGenerator][!] " + message);
+                Bukkit.getConsoleSender().sendMessage(ChatColor.RED + "[MysticBiomes][ ! ]" + message);
             }
         }
     }

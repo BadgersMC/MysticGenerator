@@ -7,10 +7,18 @@ import java.util.Locale;
 
 public enum CustomBiomeType {
     NONE,
-    SUNFORGED_LAND("b8ad49", "9c8046", "b8ad49", "d9cd62", "ad8445", "ad8445"),
-    GLACIERBORN_LAND("", "69faff", "", "87fffb", "ffa1fc", "acff96"),
-    LEAFSTRIDER_LAND("", "", "", "", "fc3103", "ff7700"),
-    CRYSTALLINE_CLUSTER("e54fff", "c599ff", "e54fff", "", "", ""),
+
+    // Updated swamp oasis with fall colors
+    BOGWALKER_LAND("f7e09c", "0a3D2e", "a6764b", "f89c42", "b08961", "c9a67a"),
+
+    // Icy, cold colors to reflect a frozen landscape
+    GLACIERBORN_LAND("cce7ff", "69faff", "b0e0e6", "a7dbf5", "ffffff", "d4f0ff"),
+
+    // Lush, vibrant colors for a jungle-like environment
+    LEAFSTRIDER_LAND("85cc33", "a4dded", "66cc66", "add8e6", "33ff33", "99ff99"),
+
+    // Crystal-rich environment with bright and mystical colors
+    CRYSTALLINE_CLUSTER("e54fff", "c599ff", "e54fff", "d28fff", "ffffff", "f0b3ff"),
     ;
 
     private final @NotNull String key;

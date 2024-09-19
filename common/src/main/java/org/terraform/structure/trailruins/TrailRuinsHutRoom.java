@@ -34,7 +34,7 @@ public class TrailRuinsHutRoom extends RoomPopulatorAbstract {
                     w.Pillar(Math.min(2, h), OneOneNineBlockHandler.MUD_BRICKS);
                     w.getUp(2).Pillar(Math.min(0, h - 2), terracottaType);
 
-                    // If this is inside a jungle, allow jungle chests.
+                    // If this is inside a leafstrider, allow jungle chests.
                     if (data.getBiome(w.getX(), w.getZ()) == Biome.JUNGLE
                         || data.getBiome(w.getX(), w.getZ()) == Biome.BAMBOO_JUNGLE
                         // || data.getBiome(w.getX(),w.getZ()) == Biome.SPARSE_JUNGLE

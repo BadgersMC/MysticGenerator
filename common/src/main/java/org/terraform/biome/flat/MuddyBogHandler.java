@@ -14,10 +14,12 @@ import org.terraform.data.SimpleLocation;
 import org.terraform.data.TerraformWorld;
 import org.terraform.main.config.TConfig;
 import org.terraform.small_items.PlantBuilder;
+import org.terraform.tree.FractalTreeBuilder;
 import org.terraform.tree.FractalTypes;
 import org.terraform.tree.MushroomBuilder;
 import org.terraform.utils.BlockUtils;
 import org.terraform.utils.GenUtils;
+import org.terraform.utils.SphereBuilder;
 import org.terraform.utils.noise.FastNoise;
 import org.terraform.utils.noise.FastNoise.NoiseType;
 import org.terraform.utils.noise.NoiseCacheHandler;
@@ -39,7 +41,7 @@ public class MuddyBogHandler extends BiomeHandler {
 
     @Override
     public @NotNull CustomBiomeType getCustomBiome() {
-        return CustomBiomeType.SUNFORGED_LAND;
+        return CustomBiomeType.BOGWALKER_LAND;
     }
 
     // Beach type. This will be used instead if the height is too close to sea level.
@@ -54,7 +56,7 @@ public class MuddyBogHandler extends BiomeHandler {
 
     @Override
     public Material @NotNull [] getSurfaceCrust(@NotNull Random rand) {
-        return new Material[] {
+        return new Material[]{
                 Material.GRASS_BLOCK,
                 Material.DIRT,
                 Material.DIRT,
@@ -69,79 +71,73 @@ public class MuddyBogHandler extends BiomeHandler {
                                    int rawX,
                                    int surfaceY,
                                    int rawZ,
-                                   @NotNull PopulatorDataAbstract data)
-    {
+                                   @NotNull PopulatorDataAbstract data) {
         SimpleBlock block = new SimpleBlock(data, rawX, surfaceY, rawZ);
         if (block.getUp().getType() == Material.AIR && block.getType() == Material.GRASS_BLOCK) {
-            if (GenUtils.chance(random, 1, 85)) {
-                PlantBuilder.DEAD_BUSH.build(block.getUp());
+            // Sunflowers
+            if (GenUtils.chance(random, 1, 100)) {
+                PlantBuilder.SUNFLOWER.build(block.getUp());
             }
-            else if (GenUtils.chance(random, 1, 85)) {
-                PlantBuilder.BROWN_MUSHROOM.build(block.getUp());
+            // Sugarcane with random heights between 3 and 5
+            else if (GenUtils.chance(random, 1, 50)) {
+                PlantBuilder.SUGAR_CANE.build(block.getUp(), random, 3, 5);
             }
+            // Lilypads in water
+            else if (block.getType() == Material.WATER && GenUtils.chance(random, 1, 50)) {
+                block.getUp().setType(Material.LILY_PAD);
+            }
+            // Other vegetation
             else if (GenUtils.chance(random, 1, 85)) {
                 PlantBuilder.GRASS.build(block.getUp());
             }
-            else if (GenUtils.chance(random, 1, 85)) {
-                PlantBuilder.TALL_GRASS.build(data, rawX, surfaceY + 1, rawZ);
-            }
-            else if (TConfig.areDecorationsEnabled() && GenUtils.chance(random, 1, 300)) {// Dripstone Cluster
-                BlockUtils.replaceCircularPatch(random.nextInt(9999), 2.5f, block, Material.DRIPSTONE_BLOCK);
-                if (GenUtils.chance(random, 1, 7)) {
-                    BlockUtils.upLPointedDripstone(GenUtils.randInt(random, 2, 4), block.getUp());
-                }
-                for (BlockFace face : BlockUtils.xzPlaneBlockFaces) {
-                    if (GenUtils.chance(random, 1, 7)) {
-                        BlockUtils.upLPointedDripstone(GenUtils.randInt(random, 2, 4),
-                                block.getRelative(face).getGround().getUp()
-                        );
-                    }
-                }
-            }
-
         }
     }
 
     @Override
     public void populateLargeItems(@NotNull TerraformWorld tw,
                                    @NotNull Random random,
-                                   @NotNull PopulatorDataAbstract data)
-    {
-        // Small brown mushrooms on dry areas
-        SimpleLocation[] shrooms = GenUtils.randomObjectPositions(tw, data.getChunkX(), data.getChunkZ(), 16);
+                                   @NotNull PopulatorDataAbstract data) {
+        // Generating various trees and features
+        SimpleLocation[] features = GenUtils.randomObjectPositions(tw, data.getChunkX(), data.getChunkZ(), 18);
 
-        for (SimpleLocation sLoc : shrooms) {
-            int treeY = GenUtils.getHighestGround(data, sLoc.getX(), sLoc.getZ());
-            sLoc.setY(treeY);
-            if (isRightBiome(tw.getBiomeBank(sLoc.getX(), sLoc.getZ())) && !BlockUtils.isWet(new SimpleBlock(data,
-                    sLoc.getX(),
-                    sLoc.getY() + 1,
-                    sLoc.getZ())) && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ())))
-            {
-                if (data.getType(sLoc.getX(), sLoc.getY() + 1, sLoc.getZ()) == Material.AIR) {
-                    if (random.nextBoolean()) {
-                        new MushroomBuilder(FractalTypes.Mushroom.SMALL_BROWN_MUSHROOM).build(tw,
-                                data,
-                                sLoc.getX(),
-                                sLoc.getY() + 1,
-                                sLoc.getZ()
-                        );
-                    }
-                    else {
-                        new MushroomBuilder(FractalTypes.Mushroom.TINY_BROWN_MUSHROOM).build(tw,
-                                data,
-                                sLoc.getX(),
-                                sLoc.getY() + 1,
-                                sLoc.getZ()
-                        );
+        for (SimpleLocation sLoc : features) {
+            int featureY = GenUtils.getHighestGround(data, sLoc.getX(), sLoc.getZ());
+            sLoc.setY(featureY);
+
+            if (isRightBiome(tw.getBiomeBank(sLoc.getX(), sLoc.getZ()))
+                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ()))) {
+
+                // Random chance for each large item
+                switch (random.nextInt(25)) {
+                    case 24, 23 -> // AZALEA_TOP (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.AZALEA_TOP).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                    case 22, 21 -> // SWAMP_TOP (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.SWAMP_TOP).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                    case 20, 19 -> // GIANT_PUMPKIN (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.GIANT_PUMPKIN).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                    case 18, 17 -> // ANDESITE_PETRIFIED_SMALL (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.ANDESITE_PETRIFIED_SMALL).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                    case 16, 15 -> // GRANITE_PETRIFIED_SMALL (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.GRANITE_PETRIFIED_SMALL).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                    case 14, 13 -> // DIORITE_PETRIFIED_SMALL (2/25)
+                            new FractalTreeBuilder(FractalTypes.Tree.DIORITE_PETRIFIED_SMALL).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                    default -> { // Fewer mushrooms (11/25 chance now)
+                        if (GenUtils.chance(random, 1, 5)) {
+                            new MushroomBuilder(FractalTypes.Mushroom.GIANT_BROWN_MUSHROOM).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                        }
                     }
                 }
+
+                // Replace some of the ground with Podzol after tree generation
+                TaigaHandler.replacePodzol(tw.getHashedRand(sLoc.getX(), sLoc.getY(), sLoc.getZ()).nextInt(9999),
+                        7f,
+                        new SimpleBlock(data, sLoc.getX(), sLoc.getY(), sLoc.getZ()));
             }
         }
     }
 
     private boolean isRightBiome(BiomeBank bank) {
-        return bank == BiomeBank.SUNFORGED_LAND || bank == BiomeBank.BOG_BEACH;
+        return bank == BiomeBank.BOGWALKER_LAND || bank == BiomeBank.BOG_BEACH;
     }
 
     @Override

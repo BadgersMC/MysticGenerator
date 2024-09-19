@@ -7,6 +7,6 @@ main: org.terraform.main.TerraformGeneratorPlugin
 load: STARTUP
 folia-supported: true
 commands:
-  terraform:
+  mysticbiomes:
     description: Main command
-    aliases: terra
+    aliases: mbiomes

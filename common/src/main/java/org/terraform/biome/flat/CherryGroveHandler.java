@@ -2,6 +2,7 @@ package org.terraform.biome.flat;
 
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.block.data.type.Snow;
 import org.jetbrains.annotations.NotNull;
 import org.terraform.biome.BiomeBank;
 import org.terraform.biome.BiomeHandler;
@@ -32,7 +33,7 @@ public class CherryGroveHandler extends BiomeHandler {
 
     @Override
     public @NotNull Biome getBiome() {
-        return Biome.PLAINS;
+        return Biome.SNOWY_TAIGA;
     }
 
     @Override
@@ -52,19 +53,34 @@ public class CherryGroveHandler extends BiomeHandler {
     }
 
     @Override
-    public void populateSmallItems(TerraformWorld world,
+    public void populateSmallItems(TerraformWorld tw,
                                    @NotNull Random random,
                                    int rawX,
                                    int surfaceY,
                                    int rawZ,
-                                   @NotNull PopulatorDataAbstract data)
-    {
+                                   @NotNull PopulatorDataAbstract data) {
+        SimpleBlock block = new SimpleBlock(data, rawX, surfaceY, rawZ);
 
-        if (data.getType(rawX, surfaceY, rawZ) == Material.GRASS_BLOCK) {
+        // Check if the block is a valid surface for snow
+        if (block.getType() == Material.GRASS_BLOCK || block.getType() == Material.DIRT || block.getType() == Material.STONE) {
+            // Only place snow in areas that are not under tree cover
+            if (!isUnderTree(block)) {
+                // Randomly decide how much snow should pile up (1 to 3 layers)
+                int snowLayers = GenUtils.randInt(random, 1, 3);
 
+                // Set snow layers based on determined height
+                if (block.getUp().getType() == Material.AIR) {
+                    block.getUp().setType(Material.SNOW);
+                    block.getUp().setBlockData(Material.SNOW.createBlockData(snowData -> ((Snow) snowData).setLayers(snowLayers)));
+                }
+            }
+        }
+
+        // The original grass/plant population logic can stay as is:
+        if (block.getType() == Material.GRASS_BLOCK) {
             if (GenUtils.chance(random, 2, 10)) { // Grass
                 if (GenUtils.chance(random, 8, 10)) {
-                    // Pink petals. No longer generate tall grass.
+                    // Pink petals or tall grass generation
                     if (Version.isAtLeast(20) && TConfig.arePlantsEnabled() && GenUtils.chance(random, 6, 10)) {
                         data.setBlockData(
                                 rawX,
@@ -72,16 +88,13 @@ public class CherryGroveHandler extends BiomeHandler {
                                 rawZ,
                                 OneTwentyBlockHandler.getPinkPetalData(GenUtils.randInt(1, 4))
                         );
-                    }
-                    else {
+                    } else {
                         PlantBuilder.GRASS.build(data, rawX, surfaceY + 1, rawZ);
                     }
-                }
-                else {
-                    if (GenUtils.chance(random, 7, 10)) {
+                } else {
+                    if (GenUtils.chance(random, 3, 10)) {
                         PlantBuilder.ALLIUM.build(data, rawX, surfaceY + 1, rawZ);
-                    }
-                    else {
+                    } else {
                         PlantBuilder.PEONY.build(data, rawX, surfaceY + 1, rawZ);
                     }
                 }
@@ -89,13 +102,23 @@ public class CherryGroveHandler extends BiomeHandler {
         }
     }
 
+    // Helper method to check if a block is under tree coverage (leaves or logs above)
+    private boolean isUnderTree(SimpleBlock block) {
+        for (int i = 1; i <= 5; i++) {  // Check 5 blocks above for leaves or logs
+            Material above = block.getRelative(0, i, 0).getType();
+            if (above == Material.DARK_OAK_LEAVES || above == Material.DARK_OAK_LOG) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void populateLargeItems(@NotNull TerraformWorld tw,
                                    @NotNull Random random,
-                                   @NotNull PopulatorDataAbstract data)
-    {
+                                   @NotNull PopulatorDataAbstract data) {
 
-        // Small trees or grass poffs
+        // Large trees, rocks, and other big features
         SimpleLocation[] trees = GenUtils.randomObjectPositions(tw, data.getChunkX(), data.getChunkZ(), 20);
 
         for (SimpleLocation sLoc : trees) {
@@ -104,11 +127,11 @@ public class CherryGroveHandler extends BiomeHandler {
             sLoc.setY(treeY);
 
             if (tw.getBiomeBank(sLoc.getX(), sLoc.getZ()) == BiomeBank.GLACIERBORN_LAND
-                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ())))
-            {
-                switch (random.nextInt(20)) // 0 to 19 inclusive
-                {
-                    case 19, 18, 17, 16, 15 -> // Rock (5/20)
+                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ()))) {
+
+                switch (random.nextInt(35)) { // Adjusted switch case for more options
+
+                    case 34, 33, 32 -> // Rock (3/35)
                             new SphereBuilder(random,
                                     new SimpleBlock(data, sLoc),
                                     Material.COBBLESTONE,
@@ -117,25 +140,24 @@ public class CherryGroveHandler extends BiomeHandler {
                                     Material.STONE,
                                     Material.MOSSY_COBBLESTONE
                             ).setRadius(GenUtils.randInt(random, 3, 5)).setRY(GenUtils.randInt(random, 6, 10)).build();
-                    default -> { // Tree (15/20)
-                        if (random.nextBoolean())  // small trees
-                        {
-                            new FractalTreeBuilder(FractalTypes.Tree.CHERRY_SMALL).build(tw,
-                                    data,
-                                    sLoc.getX(),
-                                    sLoc.getY(),
-                                    sLoc.getZ()
-                            );
+
+                    case 31, 30 -> // TAIGA_BIG (2/35)
+                            new FractalTreeBuilder(FractalTypes.Tree.TAIGA_BIG).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 29, 28 -> // TAIGA_SMALL (2/35)
+                            new FractalTreeBuilder(FractalTypes.Tree.TAIGA_SMALL).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 27, 26 -> // FROZEN_TREE_BIG (2/35)
+                            new FractalTreeBuilder(FractalTypes.Tree.FROZEN_TREE_BIG).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+
+                    case 25, 24, 23, 22 -> { // Cherry trees (4/35)
+                        if (random.nextBoolean()) {  // Small cherry tree
+                            new FractalTreeBuilder(FractalTypes.Tree.CHERRY_SMALL).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
+                        } else {  // Large cherry tree
+                            new FractalTreeBuilder(FractalTypes.Tree.CHERRY_THICK).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
                         }
-                        else {
-                            new FractalTreeBuilder(FractalTypes.Tree.CHERRY_THICK).build(tw,
-                                    data,
-                                    sLoc.getX(),
-                                    sLoc.getY(),
-                                    sLoc.getZ()
-                            );
-                        }
-                        // No spore blossoms on 1.20 as the new cherry trees already drop petals
+
+                        // Optional spore blossom generation if not 1.20
                         if (!Version.isAtLeast(20)) {
                             for (int rX = sLoc.getX() - 6; rX <= sLoc.getX() + 6; rX++) {
                                 for (int rZ = sLoc.getZ() - 6; rZ <= sLoc.getZ() + 6; rZ++) {
@@ -149,6 +171,9 @@ public class CherryGroveHandler extends BiomeHandler {
                             }
                         }
                     }
+
+                    default -> // Default case: More Cherry Trees (rest of cases)
+                            new FractalTreeBuilder(FractalTypes.Tree.CHERRY_SMALL).build(tw, data, sLoc.getX(), sLoc.getY(), sLoc.getZ());
                 }
             }
         }

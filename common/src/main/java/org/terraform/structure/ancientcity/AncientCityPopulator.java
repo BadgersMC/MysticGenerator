@@ -38,10 +38,8 @@ public class AncientCityPopulator extends SingleMegaChunkStructurePopulator {
             return false;
         }
 
-        // MegaChunk mc = new MegaChunk(chunkX, chunkZ);
-        // int[] coords = mc.getCenterBiomeSectionBlockCoords();      	
-        // Do not spawn ancient cities in non-mountains, like vanilla
-        if (biome.getType() != BiomeType.MOUNTAINOUS && biome.getType() != BiomeType.HIGH_MOUNTAINOUS) {
+        // Spawn ancient cities in all civ biomes
+        if (biome.getType() != BiomeType.FLAT) {
             return false;
         }
 

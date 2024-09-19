@@ -123,7 +123,7 @@ public class TerraformGeneratorPlugin extends JavaPlugin implements Listener {
         new TerraformGeneratorMetricsHandler(this); // bStats
 
         TerraformGenerator.updateSeaLevelFromConfig();
-        new TerraformCommandManager(this, "terraform", "terra");
+        new TerraformCommandManager(this, "mysticbiomes", "mbiomes");
         Bukkit.getPluginManager().registerEvents(this, this);
         Bukkit.getPluginManager().registerEvents(new SchematicListener(), this);
         String version = Version.getVersionPackage();
@@ -212,10 +212,12 @@ public class TerraformGeneratorPlugin extends JavaPlugin implements Listener {
                 tw.maxY = injector.getMaxY();
 
                 logger.stdout("&aInjection success! Proceeding with generation.");
+                logger.stdout("&aIf you are staring at this message, your server has locked up due to some wild configuration you are using...");
 
             }
             else {
                 logger.stdout("&cInjection failed.");
+                logger.stdout("&cBadgers a fucking idiot! Send him screenshots to prove it.");
             }
         }
     }

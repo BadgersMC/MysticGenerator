@@ -134,7 +134,7 @@ public class DesertWellPopulator extends MultiMegaChunkStructurePopulator {
             if (coords[0] >> 4 == chunkX && coords[1] >> 4 == chunkZ) {
                 EnumSet<BiomeBank> biomes = GenUtils.getBiomesInChunk(tw, chunkX, chunkZ);
                 for (BiomeBank b : biomes) {
-                    if (b.getClimate() != BiomeClimate.HOT_BARREN) {
+                    if (b.getClimate() != BiomeClimate.DRY_VEGETATION) {
                         return false;
                     }
                     if (b.getType() != BiomeType.FLAT) {

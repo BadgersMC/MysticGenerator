@@ -38,35 +38,17 @@ public class VillageHousePopulator extends SingleMegaChunkStructurePopulator {
         }
 
         MegaChunk mc = new MegaChunk(chunkX, chunkZ);
-        int[] coords = mc.getCenterBiomeSectionBlockCoords(); // getCoordsFromMegaChunk(tw, mc);
+        int[] coords = mc.getCenterBiomeSectionBlockCoords();
         if (coords[0] >> 4 == chunkX && coords[1] >> 4 == chunkZ) {
 
-            if (!biome.isDry()) {
+            // Ensure the biome is one of the custom biomes
+            if (biome != BiomeBank.BOGWALKER_LAND && biome != BiomeBank.GLACIERBORN_LAND && biome != BiomeBank.LEAFSTRIDER_LAND) {
                 return false;
             }
 
             // If it is below sea level, DON'T SPAWN IT.
             if (HeightMap.getBlockHeight(tw, coords[0], coords[1]) > TerraformGenerator.seaLevel) {
-                if (biome == (BiomeBank.DESERT) || biome == (BiomeBank.BADLANDS) || biome == (BiomeBank.ICE_SPIKES)) {
-                    return TConfig.c.STRUCTURES_ANIMALFARM_ENABLED && rollSpawnRatio(tw,
-                            chunkX,
-                            chunkZ);
-                }
-                else if (biome == (BiomeBank.SNOWY_TAIGA)
-                         || biome == (BiomeBank.SNOWY_WASTELAND)
-                         || biome == (BiomeBank.JUNGLE))
-                {
-
-                    return TConfig.c.STRUCTURES_FARMHOUSE_ENABLED && rollSpawnRatio(tw,
-                            chunkX,
-                            chunkZ);
-                }
-                else if (biome == (BiomeBank.ROCKY_MOUNTAINS)) {
-
-                    return TConfig.c.STRUCTURES_MOUNTAINHOUSE_ENABLED && rollSpawnRatio(tw,
-                            chunkX,
-                            chunkZ);
-                }
+                return rollSpawnRatio(tw, chunkX, chunkZ); // Control spawn chance
             }
         }
         return false;
@@ -80,50 +62,40 @@ public class VillageHousePopulator extends SingleMegaChunkStructurePopulator {
 
         MegaChunk mc = new MegaChunk(data.getChunkX(), data.getChunkZ());
 
-        // On ground, spawn dry village houses
-        // int[] coords = mc.getCenterBiomeSectionBlockCoords(); // getCoordsFromMegaChunk(tw, mc);
+        // Get the biome from the center of the MegaChunk
         BiomeBank biome = mc.getCenterBiomeSection(tw).getBiomeBank();
-        // if (GenUtils.getHighestGround(data, coords[0], coords[1]) > TerraformGenerator.seaLevel) {
-        if (biome == (BiomeBank.DESERT) || biome == (BiomeBank.BADLANDS) || biome == (BiomeBank.ICE_SPIKES)) {
+
+        // Populate based on the custom biomes
+        if (biome == BiomeBank.BOGWALKER_LAND) {
             if (!TConfig.c.STRUCTURES_ANIMALFARM_ENABLED) {
                 return;
             }
-
             new AnimalFarmPopulator().populate(tw, data);
-        }
-        else if (biome == (BiomeBank.SNOWY_TAIGA)
-                 || biome == (BiomeBank.SNOWY_WASTELAND)
-                 || biome == (BiomeBank.JUNGLE))
-        {
 
+        } else if (biome == BiomeBank.GLACIERBORN_LAND) {
             if (!TConfig.c.STRUCTURES_FARMHOUSE_ENABLED) {
                 return;
             }
-
             new FarmhousePopulator().populate(tw, data);
-        }
-        else if (biome == (BiomeBank.ROCKY_MOUNTAINS)) {
 
+        } else if (biome == BiomeBank.LEAFSTRIDER_LAND) {
             if (!TConfig.c.STRUCTURES_MOUNTAINHOUSE_ENABLED) {
                 return;
             }
-
             new MountainhousePopulator().populate(tw, data);
         }
-        // }
     }
 
     @Override
     public boolean isEnabled() {
-        return TConfig.areStructuresEnabled() && (BiomeBank.isBiomeEnabled(BiomeBank.DESERT)
-                                                  || BiomeBank.isBiomeEnabled(BiomeBank.BADLANDS)
-                                                  || BiomeBank.isBiomeEnabled(BiomeBank.ICE_SPIKES)
-                                                  || BiomeBank.isBiomeEnabled(BiomeBank.SNOWY_TAIGA)
-                                                  || BiomeBank.isBiomeEnabled(BiomeBank.SNOWY_WASTELAND)
-                                                  || BiomeBank.isBiomeEnabled(BiomeBank.JUNGLE)
-                                                  || BiomeBank.isBiomeEnabled(BiomeBank.ROCKY_MOUNTAINS)) && (
+        return TConfig.areStructuresEnabled() && (
+                BiomeBank.isBiomeEnabled(BiomeBank.BOGWALKER_LAND)
+                || BiomeBank.isBiomeEnabled(BiomeBank.GLACIERBORN_LAND)
+                || BiomeBank.isBiomeEnabled(BiomeBank.LEAFSTRIDER_LAND)
+        ) && (
                        TConfig.c.STRUCTURES_ANIMALFARM_ENABLED
                        || TConfig.c.STRUCTURES_FARMHOUSE_ENABLED
-                       || TConfig.c.STRUCTURES_MOUNTAINHOUSE_ENABLED);
+                       || TConfig.c.STRUCTURES_MOUNTAINHOUSE_ENABLED
+               );
     }
 }

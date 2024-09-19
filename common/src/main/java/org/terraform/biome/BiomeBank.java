@@ -162,7 +162,7 @@ public enum BiomeBank {
     // Rivers are handled specially and will not be allocated in selectBiome
     RIVER(new RiverHandler(), BiomeType.RIVER, BiomeClimate.TRANSITION),
     BOG_RIVER(new BogRiverHandler(), BiomeType.RIVER, BiomeClimate.DRY_VEGETATION),
-    CHERRY_GROVE_RIVER(new CherryGroveRiverHandler(), BiomeType.RIVER, BiomeClimate.COLD),
+    CHERRY_GROVE_RIVER(new CherryGroveRiverHandler(), BiomeType.RIVER, BiomeClimate.SNOWY),
     SCARLET_FOREST_RIVER(new ScarletForestRiverHandler(), BiomeType.RIVER, BiomeClimate.COLD),
     JUNGLE_RIVER(new JungleRiverHandler(), BiomeType.RIVER, BiomeClimate.HUMID_VEGETATION),
     FROZEN_RIVER(new FrozenRiverHandler(),
@@ -251,7 +251,7 @@ public enum BiomeBank {
             BiomeClimate.DRY_VEGETATION,
             TConfig.c.BIOME_SAVANNA_WEIGHT
     ),
-    SUNFORGED_LAND(new MuddyBogHandler(),
+    BOGWALKER_LAND(new MuddyBogHandler(),
             BiomeType.FLAT,
             BiomeClimate.DRY_VEGETATION,
             TConfig.c.BIOME_MUDDYBOG_WEIGHT
@@ -289,7 +289,7 @@ public enum BiomeBank {
     ),
     GLACIERBORN_LAND(new CherryGroveHandler(),
             BiomeType.FLAT,
-            BiomeClimate.COLD,
+            BiomeClimate.SNOWY,
             TConfig.c.BIOME_CHERRYGROVE_WEIGHT
     ),
     TAIGA(new TaigaHandler(), BiomeType.FLAT, BiomeClimate.COLD, TConfig.c.BIOME_TAIGA_WEIGHT),
@@ -333,7 +333,7 @@ public enum BiomeBank {
     ROCKY_BEACH(new RockBeachHandler(), BiomeType.BEACH, BiomeClimate.COLD),
     ICY_BEACH(new IcyBeachHandler(), BiomeType.BEACH, BiomeClimate.SNOWY, new FrozenCavePopulator()),
     MUDFLATS(new MudflatsHandler(), BiomeType.BEACH, BiomeClimate.HUMID_VEGETATION), // Special case, handle later
-    CHERRY_GROVE_BEACH(new CherryGroveBeachHandler(), BiomeType.BEACH, BiomeClimate.COLD),
+    CHERRY_GROVE_BEACH(new CherryGroveBeachHandler(), BiomeType.BEACH, BiomeClimate.SNOWY, new FrozenCavePopulator()),
     SCARLET_FOREST_BEACH(new ScarletForestBeachHandler(), BiomeType.BEACH, BiomeClimate.COLD),
     ;
     public static final ArrayList<BiomeBank> FLAT = new ArrayList<>() {{

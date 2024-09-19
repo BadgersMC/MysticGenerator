@@ -41,7 +41,9 @@ public class MansionPopulator extends SingleMegaChunkStructurePopulator {
         }
 
         // Mansions must spawn. Dark forests are rare enough. Ignore ground height.
-        if (biome == (BiomeBank.DARK_FOREST)) {
+        if (biome == (BiomeBank.BOGWALKER_LAND)
+            || biome == (BiomeBank.GLACIERBORN_LAND)
+            || biome == (BiomeBank.LEAFSTRIDER_LAND)) {
             return rollSpawnRatio(tw, chunkX, chunkZ);
         }
         return false;
