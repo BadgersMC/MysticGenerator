@@ -6,6 +6,7 @@
 [![Issues][issues-shield]][issues-url]
 
 
+# IMPORTANT READ!! THIS IS NOT MY PLUGIN! ALL CREDITS FOR THE CODEBASE GO TO THE ORIGINAL AUTHORS. THIS IS JUST ME HAVING SOME FUN WITH THE AWESOME TOOLS PROVIDED BY TERRAFORM GENERATOR. You are welcome to use this, but i probably wont provide support. Built for 1.21
 <!-- TABLE OF CONTENTS -->
 
 # Table of Contents
