@@ -93,7 +93,7 @@ public class CustomBiomeHandler {
 
         ResourceKey<BiomeBase> newKey = ResourceKey.a(
                 Registries.an,
-                new MinecraftKey("terraformgenerator", biomeType.toString().toLowerCase(Locale.ENGLISH))
+                new MinecraftKey("mysticbiomes", biomeType.toString().toLowerCase(Locale.ENGLISH))
         );
 
         // BiomeBase.a is BiomeBuilder

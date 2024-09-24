@@ -67,6 +67,24 @@ public class FractalTypes {
                                                                                 .setRadiusY(2.5f))
                                            .setSpawnBees(true)
         ),
+        SPOOKY_TREE(new SpookyVineBuilder()
+                .setVineLengthRange(4, 7)
+                .setVineMaterials(Material.DARK_OAK_FENCE, Material.SPRUCE_FENCE, Material.OAK_FENCE)
+                .setDecorationChance(0.1, 0.05),
+                new NewFractalTreeBuilder()
+                        .setOriginalTrunkLength(20)
+                        .setLengthVariance(3)
+                        .setInitialBranchRadius(2.2f)
+                        .setMinBranchHorizontalComponent(1.0)
+                        .setMaxBranchHorizontalComponent(2.5)
+                        .setBranchDecrement((currentBranchLength, totalTreeHeight) -> currentBranchLength / 1.5f)
+                        .setBranchSpawnChance(0.2)
+                        .setFractalLeaves(new FractalLeaves().setWeepingLeaves(0.4f, 4)
+                                                             .setRadius(5f)
+                                                             .setRadiusY(3f)
+                                                             .setMaterial(Material.DARK_OAK_LEAVES))
+                        .setSpawnBees(false)
+        ),
         NORMAL_SMALL(new NewFractalTreeBuilder().setTreeRootThreshold(0)
                                                 .setOriginalTrunkLength(4)
                                                 .setLengthVariance(1)
@@ -185,6 +203,7 @@ public class FractalTypes {
                                                                                 .setRadius(1.3f)
                                                                                 .setRadiusY(2f)
                                                                                 .setMaterial(Material.SPRUCE_LEAVES)),
+
                 new NewFractalTreeBuilder().setTreeRootThreshold(0)
                                            .setBranchMaterial(Material.SPRUCE_LOG)
                                            .setOriginalTrunkLength(18)
@@ -314,50 +333,63 @@ public class FractalTypes {
         DIORITE_PETRIFIED_SMALL;
 
         private final NewFractalTreeBuilder[] builders;
+        private SpookyVineBuilder spookyVineBuilder;
 
+        // Default constructor
         Tree() {
-            builders = new NewFractalTreeBuilder[] {};
+            builders = new NewFractalTreeBuilder[]{};
         }
 
+        // Constructor with NewFractalTreeBuilder(s)
         Tree(NewFractalTreeBuilder... builder) {
             this.builders = builder;
         }
 
-        public boolean build(@NotNull TerraformWorld tw, @NotNull SimpleBlock base)
-        {
+        // Constructor with SpookyVineBuilder and NewFractalTreeBuilder(s)
+        Tree(SpookyVineBuilder spookyVineBuilder, NewFractalTreeBuilder... builder) {
+            this.builders = builder;
+            this.spookyVineBuilder = spookyVineBuilder;
+        }
+
+        public boolean build(@NotNull TerraformWorld tw, @NotNull SimpleBlock base) {
             return build(tw, base, null);
         }
 
-        // Use of treeMutator is currently not optimal as it makes a copy before every use
-        // No idea how bad that is.
+        // Build method with treeMutator function
         public boolean build(@NotNull TerraformWorld tw,
                              @NotNull SimpleBlock base,
-                             @Nullable Function<NewFractalTreeBuilder, Object> treeMutator)
-        {
+                             @Nullable Function<NewFractalTreeBuilder, Object> treeMutator) {
             if (builders.length > 0) {
+                // Pick a tree builder randomly from the builders array
                 NewFractalTreeBuilder b = Objects.requireNonNull(GenUtils.choice(tw.getHashedRand(base.getX(),
                         base.getY(),
-                        base.getZ()
-                ), builders));
+                        base.getZ()), builders));
+
+                // Apply spookyVineBuilder if it's not null
+                if (spookyVineBuilder != null) {
+                    b.setSpookyVines(spookyVineBuilder); // Ensure NewFractalTreeBuilder has this method
+                }
+
+                // Apply treeMutator if it's not null
                 if (treeMutator != null) {
                     try {
-                        b = (NewFractalTreeBuilder) b.clone();
-                        treeMutator.apply(b);
-                    }
-                    catch (CloneNotSupportedException e) {
-                        // good luck m8
+                        b = (NewFractalTreeBuilder) b.clone(); // Clone the builder for mutation
+                        treeMutator.apply(b); // Apply the mutation
+                    } catch (CloneNotSupportedException e) {
                         TerraformGeneratorPlugin.logger.stackTrace(e);
-                        return b.build(tw, base);
                     }
                 }
+
+                // Build the tree using the selected builder
                 return b.build(tw, base);
-            }
-            else {
+            } else {
+                // If no builders are available, use FractalTreeBuilder as fallback
                 return new FractalTreeBuilder(this).build(tw, base);
             }
         }
     }
 
+    // Add back the Mushroom enums here
     public enum Mushroom {
         TINY_BROWN_MUSHROOM,
         TINY_RED_MUSHROOM,

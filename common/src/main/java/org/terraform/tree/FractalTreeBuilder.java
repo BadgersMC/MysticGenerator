@@ -77,9 +77,16 @@ public class FractalTreeBuilder {
     int oriZ;
     private SimpleBlock beeHive;
     private double initialAngle;
+    private SpookyVineBuilder spookyVineBuilder;
 
     private int initialHeight;
     private boolean heightGradientChecked = false;
+
+    public FractalTreeBuilder setSpookyVines(SpookyVineBuilder spookyVineBuilder) {
+        this.spookyVineBuilder = spookyVineBuilder;
+        return this;
+    }
+
 
     public FractalTreeBuilder(FractalTypes.@NotNull Tree type) {
         switch (type) {
@@ -580,6 +587,23 @@ public class FractalTreeBuilder {
                     .setCoralDecoration(true)
                     .setNoMainStem(true);
                 break;
+            case SPOOKY_TREE: // <-- New SpookyTree case
+                this.setBeeChance(0) // No bees for the spooky tree, for example
+                    .setBaseHeight(10) // Customize the tree's base height
+                    .setBaseThickness(3f)
+                    .setThicknessDecrement(0.2f)
+                    .setMaxDepth(5)
+                    .setLengthDecrement(1.5f)
+                    .setTrunkType(Material.DARK_OAK_LOG) // Use Dark Oak for a spooky feel
+                    .setFractalLeaves(new FractalLeaves()
+                            .setRadius(5, 2.5f, 5)
+                            .setMaterial(Material.DARK_OAK_LEAVES) // Use Dead Bush as leaves for a spooky feel
+                            .setWeepingLeaves(0.4f, 7))
+                    .setSpookyVines(new SpookyVineBuilder() // Include your custom SpookyVineBuilder
+                                                            .setVineLengthRange(4, 8)
+                                                            .setVineMaterials(Material.COBWEB, Material.VINE)
+                                                            .setDecorationChance(5, 1));
+                break;
         }
     }
 
@@ -1062,49 +1086,50 @@ public class FractalTreeBuilder {
     }
 
     /**
-     * For a randomised length downwards, dangle a downward pillar of leaves
-     * (up till a solid is hit)
-     * <p>
-     * On top of the vine dangle, set 1 log, then surround that log with leaves.
-     * <p>
-     * For some ungodly reason this is in this class instead of the leaf class.
-     * That ungodly reason is that the branches run this
+     * For a randomised length downwards, dangle a downward pillar of vines
+     * (up till a solid is hit). If the spooky vine builder is set, it will
+     * generate spooky vines.
      *
      * @param block under which the vine spawns
      * @param min   minimum vine length
      * @param max   maximum vine length
      */
     void dangleLeavesDown(@NotNull SimpleBlock block, int min, int max) {
-        Material material = fractalLeaves.material[rand.nextInt(fractalLeaves.material.length)];
-        BlockData type = Bukkit.createBlockData(material);
-        if (Tag.LEAVES.isTagged(material)) {
-            Leaves leaf = (Leaves) type;
-            leaf.setDistance(1);
-        }
-        for (int i = 1; i <= GenUtils.randInt(min, max); i++) {
-            if (!block.getRelative(0, -i, 0).isSolid()) {
-                block.getRelative(0, -i, 0).rsetBlockData(BlockUtils.replacableByTrees, type);
-            }
-            else {
-                break;
-            }
-        }
-
-        // Log for good measure, as well as some surrounding leaves.
-        if (Tag.LEAVES.isTagged(material)) {
-            block.rsetType(BlockUtils.replacableByTrees, this.trunkType);
-        }
-        for (BlockFace face : BlockUtils.directBlockFaces) {
-            material = fractalLeaves.material[rand.nextInt(fractalLeaves.material.length)];
-            type = Bukkit.createBlockData(material);
+        if (spookyVineBuilder != null) {
+            // Use the spooky vine builder if it's set
+            spookyVineBuilder.buildVine(block, rand);
+        } else {
+            // Original dangle logic if spooky vines are not enabled
+            Material material = fractalLeaves.material[rand.nextInt(fractalLeaves.material.length)];
+            BlockData type = Bukkit.createBlockData(material);
             if (Tag.LEAVES.isTagged(material)) {
                 Leaves leaf = (Leaves) type;
                 leaf.setDistance(1);
             }
+            for (int i = 1; i <= GenUtils.randInt(min, max); i++) {
+                if (!block.getRelative(0, -i, 0).isSolid()) {
+                    block.getRelative(0, -i, 0).rsetBlockData(BlockUtils.replacableByTrees, type);
+                } else {
+                    break;
+                }
+            }
 
-            block.getRelative(face).rsetBlockData(BlockUtils.replacableByTrees, type);
+            // Log for good measure, as well as some surrounding leaves.
+            if (Tag.LEAVES.isTagged(material)) {
+                block.rsetType(BlockUtils.replacableByTrees, this.trunkType);
+            }
+            for (BlockFace face : BlockUtils.directBlockFaces) {
+                material = fractalLeaves.material[rand.nextInt(fractalLeaves.material.length)];
+                type = Bukkit.createBlockData(material);
+                if (Tag.LEAVES.isTagged(material)) {
+                    Leaves leaf = (Leaves) type;
+                    leaf.setDistance(1);
+                }
+
+                block.getRelative(face).rsetBlockData(BlockUtils.replacableByTrees, type);
+            }
+            block.getUp().rsetBlockData(BlockUtils.replacableByTrees, type);
         }
-        block.getUp().rsetBlockData(BlockUtils.replacableByTrees, type);
     }
 
     public @NotNull FractalTreeBuilder setSnowyLeaves(boolean snowy) {

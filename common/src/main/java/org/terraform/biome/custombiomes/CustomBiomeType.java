@@ -19,6 +19,9 @@ public enum CustomBiomeType {
 
     // Crystal-rich environment with bright and mystical colors
     CRYSTALLINE_CLUSTER("e54fff", "c599ff", "e54fff", "d28fff", "ffffff", "f0b3ff"),
+
+    // Dark purple, mystical forest biome
+    SPOOKY_FOREST("6a007a", "46004d", "800080", "800080", "4b0082", "8a2be2")
     ;
 
     private final @NotNull String key;

@@ -164,6 +164,7 @@ public enum BiomeBank {
     BOG_RIVER(new BogRiverHandler(), BiomeType.RIVER, BiomeClimate.DRY_VEGETATION),
     CHERRY_GROVE_RIVER(new CherryGroveRiverHandler(), BiomeType.RIVER, BiomeClimate.SNOWY),
     SCARLET_FOREST_RIVER(new ScarletForestRiverHandler(), BiomeType.RIVER, BiomeClimate.COLD),
+    SPOOKY_FOREST_RIVER(new SpookyForestRiverHandler(), BiomeType.RIVER, BiomeClimate.TRANSITION),
     JUNGLE_RIVER(new JungleRiverHandler(), BiomeType.RIVER, BiomeClimate.HUMID_VEGETATION),
     FROZEN_RIVER(new FrozenRiverHandler(),
             BiomeType.RIVER,
@@ -290,7 +291,8 @@ public enum BiomeBank {
     GLACIERBORN_LAND(new CherryGroveHandler(),
             BiomeType.FLAT,
             BiomeClimate.SNOWY,
-            TConfig.c.BIOME_CHERRYGROVE_WEIGHT
+            TConfig.c.BIOME_CHERRYGROVE_WEIGHT,
+            new FrozenCavePopulator()
     ),
     TAIGA(new TaigaHandler(), BiomeType.FLAT, BiomeClimate.COLD, TConfig.c.BIOME_TAIGA_WEIGHT),
     SNOWY_TAIGA(new SnowyTaigaHandler(),
@@ -322,6 +324,12 @@ public enum BiomeBank {
             BiomeClimate.HUMID_VEGETATION,
             TConfig.c.BIOME_MANGROVE_WEIGHT
     ),
+    SPOOKY_FOREST(new SpookyForestHandler(),
+            BiomeType.FLAT,
+            BiomeClimate.HUMID_VEGETATION,
+            TConfig.c.BIOME_SPOOKY_FOREST_WEIGHT,
+            new MossyCavePopulator()
+    ),
 
     // BEACHES (Don't include in selectBiome)
     SANDY_BEACH(new SandyBeachHandler(), BiomeType.BEACH, BiomeClimate.TRANSITION),
@@ -335,6 +343,7 @@ public enum BiomeBank {
     MUDFLATS(new MudflatsHandler(), BiomeType.BEACH, BiomeClimate.HUMID_VEGETATION), // Special case, handle later
     CHERRY_GROVE_BEACH(new CherryGroveBeachHandler(), BiomeType.BEACH, BiomeClimate.SNOWY, new FrozenCavePopulator()),
     SCARLET_FOREST_BEACH(new ScarletForestBeachHandler(), BiomeType.BEACH, BiomeClimate.COLD),
+    SPOOKY_BEACH(new SpookyForestBeachHandler(),BiomeType.BEACH,BiomeClimate.TRANSITION),
     ;
     public static final ArrayList<BiomeBank> FLAT = new ArrayList<>() {{
         for (BiomeBank b : values()) {

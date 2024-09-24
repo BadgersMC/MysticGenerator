@@ -274,6 +274,8 @@ public class TConfig extends YamlFileInterface {
     public double BIOME_OASIS_COMMONNESS = 1d;
     @YamlKey("biome.oasis.frequency")
     public float BIOME_OASIS_FREQUENCY = 0.012f;
+    @YamlKey("biome.spookyforest.weight")
+    public int BIOME_SPOOKY_FOREST_WEIGHT = 10;
 
 
     // -=[TREES]=-

@@ -122,6 +122,7 @@ public class NoiseCacheHandler {
 
         FRACTALTREES_LEAVES_NOISE,
         FRACTALTREES_BASE_NOISE,
+        BIOME_SPOOKY_FOREST_RIVER_HEIGHTMAP,
     }
 
     public static class NoiseCacheLoader extends CacheLoader<NoiseCacheHandler.NoiseCacheKey, FastNoise> {
