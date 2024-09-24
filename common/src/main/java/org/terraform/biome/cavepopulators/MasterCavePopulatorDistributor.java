@@ -1,11 +1,14 @@
 package org.terraform.biome.cavepopulators;
 
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.jetbrains.annotations.NotNull;
 import org.terraform.biome.BiomeBank;
 import org.terraform.coregen.populatordata.PopulatorDataAbstract;
 import org.terraform.data.SimpleBlock;
 import org.terraform.data.SimpleLocation;
 import org.terraform.data.TerraformWorld;
+import org.terraform.data.Wall;
 import org.terraform.main.TerraformGeneratorPlugin;
 import org.terraform.utils.BlockUtils;
 import org.terraform.utils.GenUtils;
@@ -25,8 +28,7 @@ public class MasterCavePopulatorDistributor {
     private static final ArrayList<Class<?>> populatedBefore = new ArrayList<>();
 
     public void populate(@NotNull TerraformWorld tw, @NotNull Random random, @NotNull PopulatorDataAbstract data) {
-        HashMap<SimpleLocation, CaveClusterRegistry> clusters = calculateClusterLocations(
-                random,
+        HashMap<SimpleLocation, CaveClusterRegistry> clusters = calculateClusterLocations(random,
                 tw,
                 data.getChunkX(),
                 data.getChunkZ()
@@ -59,38 +61,22 @@ public class MasterCavePopulatorDistributor {
                     // If this is wet, don't touch it.
                     // Don't populate inside amethysts
                     if (BlockUtils.amethysts.contains(floor.getType())
-                        || BlockUtils.fluids.contains(floor.getUp()
-                                                           .getType())
-                        || BlockUtils.amethysts.contains(ceil.getDown().getType()))
-                    {
+                        || BlockUtils.fluids.contains(floor.getUp().getType())
+                        || BlockUtils.amethysts.contains(ceil.getDown().getType())) {
                         continue;
                     }
 
                     AbstractCavePopulator pop;
 
-                    /*
-                     * Deep cave floors will use the deep cave populator.
-                     * This has to happen, as most surfaces
-                     * too low down will be lava. Hard to decorate.
-                     */
                     if (floor.getY() < TerraformGeneratorPlugin.injector.getMinY() + 32) {
                         pop = new DeepCavePopulator();
-                    }
-                    else {
-                        /*
-                         * Cluster Populators won't just decorate one block, they
-                         * will populate the surrounding surfaces in a fuzzy
-                         * radius.
-                         */
-                        // If there is no cluster to spawn, then revert to the
-                        // basic biome-based cave populator
+                    } else {
                         pop = (clusterPair == 0 && reg != null) ? reg.getPopulator(random) : bank.getCavePop();
                     }
                     clusterPair--;
 
                     pop.populate(tw, random, ceil, floor);
 
-                    // Locating and debug print
                     if (!populatedBefore.contains(pop.getClass())) {
                         populatedBefore.add(pop.getClass());
                         TerraformGeneratorPlugin.logger.info("Spawning "
@@ -98,16 +84,63 @@ public class MasterCavePopulatorDistributor {
                                                              + " at "
                                                              + floor);
                     }
+
+                    // =========================
+                    // Light Placement Logic
+                    // =========================
+                    if (GenUtils.chance(random, 1, 50)) {  // Adjusted chance for light placement
+                        Material lightBlock = Material.SHROOMLIGHT; // Default to shroomlight
+
+                        // Assign different light blocks based on the biome
+                        if (bank == BiomeBank.GLACIERBORN_LAND) {
+                            lightBlock = Material.PEARLESCENT_FROGLIGHT;
+                        } else if (bank == BiomeBank.BOGWALKER_LAND) {
+                            lightBlock = Material.OCHRE_FROGLIGHT;
+                        } else if (bank == BiomeBank.LEAFSTRIDER_LAND) {
+                            lightBlock = Material.VERDANT_FROGLIGHT;
+                        }
+
+                        // First, try to place light on the walls
+                        boolean lightPlaced = false;
+                        for (BlockFace face : BlockUtils.directBlockFaces) {
+                            Wall wall = new Wall(floor).getRelative(face);
+                            if (BlockUtils.isAir(wall.getType()) && wall.getRelative(face.getOppositeFace()).getType().isSolid()
+                                && hasOneExposedFace(wall)) {  // Use the new method here
+                                wall.setType(lightBlock);
+                                lightPlaced = true;
+                                break;
+                            }
+                        }
+
+                        // If no suitable wall, try placing it on the ceiling
+                        if (!lightPlaced && BlockUtils.isAir(ceil.getRelative(BlockFace.DOWN).getType())
+                            && ceil.getType().isSolid() // Ensure the block above is solid
+                            && hasOneExposedFace(ceil.getRelative(BlockFace.DOWN))) {  // Use the new method here
+                            ceil.getRelative(BlockFace.DOWN).setType(lightBlock);
+                        }
+                    }
                 }
             }
         }
     }
 
+    // Helper method to check if the block has exactly one exposed face to cave air
+    private boolean hasOneExposedFace(SimpleBlock block) {
+        int airCount = 0;
+        // Count the number of exposed air faces
+        for (BlockFace face : BlockUtils.directBlockFaces) {
+            if (BlockUtils.isAir(block.getRelative(face).getType())) {
+                airCount++;
+            }
+        }
+        // Return true only if exactly one face is exposed to air
+        return airCount == 1;
+    }
+
     private @NotNull HashMap<SimpleLocation, CaveClusterRegistry> calculateClusterLocations(@NotNull Random rand,
                                                                                             @NotNull TerraformWorld tw,
                                                                                             int chunkX,
-                                                                                            int chunkZ)
-    {
+                                                                                            int chunkZ) {
         HashMap<SimpleLocation, CaveClusterRegistry> locs = new HashMap<>();
 
         for (CaveClusterRegistry type : CaveClusterRegistry.values()) {
@@ -122,14 +155,11 @@ public class MasterCavePopulatorDistributor {
                     type.getPertub()
             );
             for (SimpleLocation pos : positions) {
-                if (locs.containsKey(pos))
-                // give a chance to replace the old one
-                {
+                if (locs.containsKey(pos)) {
                     if (rand.nextBoolean()) {
                         continue;
                     }
                 }
-
                 locs.put(pos, type);
             }
 

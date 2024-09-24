@@ -17,7 +17,7 @@ public enum PlantBuilder {
     DEAD_BUSH(Material.DEAD_BUSH),
     BROWN_MUSHROOM(Material.BROWN_MUSHROOM),
     RED_MUSHROOM(Material.RED_MUSHROOM),
-    GRASS(Material.GRASS),
+    GRASS(Material.SHORT_GRASS),
     SUGAR_CANE(Material.SUGAR_CANE),
     FERN(Material.FERN),
     OAK_LEAVES(Material.OAK_LEAVES),

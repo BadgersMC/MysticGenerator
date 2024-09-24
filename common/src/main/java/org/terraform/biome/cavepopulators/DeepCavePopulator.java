@@ -31,7 +31,7 @@ public class DeepCavePopulator extends AbstractCavePopulator {
         }
 
         // =========================
-        // Upper decorations
+        // Upper decorations (Ceiling)
         // =========================
 
         // Stalactites
@@ -42,20 +42,42 @@ public class DeepCavePopulator extends AbstractCavePopulator {
                                                                       .setFacingUp(false)
                                                                       .setVerticalSpace(caveHeight)
                                                                       .build(random, w);
-                // w.downLPillar(random, h, OneOneSevenBlockHandler.COBBLED_DEEPSLATE_WALL);
-            }
-            else {
+            } else {
                 new StalactiteBuilder(Material.COBBLESTONE_WALL).setSolidBlockType(Material.COBBLESTONE)
                                                                 .setFacingUp(false)
                                                                 .setVerticalSpace(caveHeight)
                                                                 .build(random, w);
-                // w.downLPillar(random, h, Material.COBBLESTONE_WALL);
             }
-
         }
 
         // =========================
-        // Lower decorations
+        // Light Placement Logic
+        // =========================
+        if (GenUtils.chance(random, 1, 50)) {  // Adjusted chance for light placement
+            Material lightBlock = Material.SHROOMLIGHT; // Default to shroomlight
+
+            // First, try to place light on the walls
+            boolean lightPlaced = false;
+            for (BlockFace face : BlockUtils.directBlockFaces) {
+                Wall wall = new Wall(floor).getRelative(face);
+                if (BlockUtils.isAir(wall.getType()) && wall.getRelative(face.getOppositeFace()).getType().isSolid()
+                    && !nearbyLight(wall)) {
+                    wall.setType(lightBlock);
+                    lightPlaced = true;
+                    break;
+                }
+            }
+
+            // If no suitable wall, try placing it on the ceiling
+            if (!lightPlaced && BlockUtils.isAir(ceil.getRelative(BlockFace.DOWN).getType())
+                && ceil.getType().isSolid() // Ensure the block above is solid
+                && !nearbyLight(ceil.getRelative(BlockFace.DOWN))) {
+                ceil.getRelative(BlockFace.DOWN).setType(lightBlock);
+            }
+        }
+
+        // =========================
+        // Lower decorations (Floor)
         // =========================
 
         // Stalagmites
@@ -66,28 +88,19 @@ public class DeepCavePopulator extends AbstractCavePopulator {
             }
             Wall w = new Wall(floor.getUp());
             if (BlockUtils.isAir(w.getType())) {
-                if (w.getDown().getType() == Material.DEEPSLATE)
-                // w.LPillar(h, random, OneOneSevenBlockHandler.COBBLED_DEEPSLATE_WALL);
-
-                {
+                if (w.getDown().getType() == Material.DEEPSLATE) {
                     new StalactiteBuilder(Material.COBBLED_DEEPSLATE_WALL).setSolidBlockType(Material.DEEPSLATE)
                                                                           .setFacingUp(true)
                                                                           .setVerticalSpace(caveHeight)
                                                                           .build(random, w);
-                }
-                else
-                // w.LPillar(h, random, Material.COBBLESTONE_WALL);
-
-                {
+                } else {
                     new StalactiteBuilder(Material.COBBLESTONE_WALL).setSolidBlockType(Material.COBBLESTONE)
                                                                     .setFacingUp(true)
                                                                     .setVerticalSpace(caveHeight)
                                                                     .build(random, w);
                 }
             }
-
-        }
-        else if (GenUtils.chance(random, 1, 25)) { // Slabbing
+        } else if (GenUtils.chance(random, 1, 25)) { // Slabbing
             SimpleBlock base = floor.getUp();
             // Only next to spots where there's some kind of solid block.
             if (BlockUtils.isAir(base.getType())) {
@@ -95,20 +108,29 @@ public class DeepCavePopulator extends AbstractCavePopulator {
                     if (base.getRelative(face).isSolid()) {
                         if (base.getDown().getType() == Material.DEEPSLATE) {
                             base.setType(Material.COBBLED_DEEPSLATE_SLAB);
-                        }
-                        else {
+                        } else {
                             base.setType(Material.STONE_SLAB);
                         }
                         break;
                     }
                 }
             }
-        }
-        else if (GenUtils.chance(random, 1, 35)) { // Shrooms :3
+        } else if (GenUtils.chance(random, 1, 35)) { // Shrooms :3
             if (BlockUtils.isAir(floor.getUp().getType())) {
                 PlantBuilder.build(floor.getUp(), PlantBuilder.RED_MUSHROOM, PlantBuilder.BROWN_MUSHROOM);
             }
         }
 
     }
+
+    // Helper method to check for nearby light-emitting blocks
+    private boolean nearbyLight(SimpleBlock block) {
+        for (BlockFace face : BlockUtils.directBlockFaces) {
+            if (BlockUtils.emitsLight(block.getRelative(face).getType())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

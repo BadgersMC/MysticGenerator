@@ -324,7 +324,7 @@ public class TerraformAnimalPopulator extends BlockPopulator {
                     BiomeBank.WARM_OCEAN
             ).setAquatic(true),
 
-            new AnimalPopulator(EntityType.MUSHROOM_COW,
+            new AnimalPopulator(EntityType.MOOSHROOM,
                     TConfig.c.ANIMALS_MOOSHROOM_MINHERDSIZE,
                     TConfig.c.ANIMALS_MOOSHROOM_MAXHERDSIZE,
                     TConfig.c.ANIMALS_MOOSHROOM_CHANCE,

@@ -155,7 +155,7 @@ public class PopulatorDataSpigotAPI extends PopulatorDataAbstract
 
         StorageMinecart e = (StorageMinecart) lr.spawnEntity(
                 new Location(tw.getWorld(), x + 0.5f, y + 0.5f, z + 0.5f),
-                EntityType.MINECART_CHEST
+                EntityType.CHEST_MINECART
         );
         e.setLootTable(table.bukkit());
     }

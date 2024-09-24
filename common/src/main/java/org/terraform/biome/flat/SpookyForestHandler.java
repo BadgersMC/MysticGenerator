@@ -11,6 +11,7 @@ import org.terraform.data.SimpleBlock;
 import org.terraform.data.SimpleLocation;
 import org.terraform.data.TerraformWorld;
 import org.terraform.small_items.PlantBuilder;
+import org.terraform.tree.FractalLeaves;
 import org.terraform.tree.FractalTypes;
 import org.terraform.tree.NewFractalTreeBuilder;
 import org.terraform.tree.SpookyVineBuilder;
@@ -95,9 +96,7 @@ public class SpookyForestHandler extends BiomeHandler {
             sLoc.setY(treeY);
 
             if (tw.getBiomeBank(sLoc.getX(), sLoc.getZ()) == BiomeBank.SPOOKY_FOREST
-                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ())))
-            {
-
+                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ()))) {
                 // Spawn the custom Spooky Tree
                 NewFractalTreeBuilder treeBuilder = new NewFractalTreeBuilder(FractalTypes.Tree.SPOOKY_TREE);
 
@@ -105,49 +104,136 @@ public class SpookyForestHandler extends BiomeHandler {
                 treeBuilder.build(tw, new SimpleBlock(data, sLoc.getX(), sLoc.getY(), sLoc.getZ()));
 
                 // Optionally place spooky vines underneath the leaf blocks
-                // Optionally place spooky vines underneath the leaf blocks
                 if (GenUtils.chance(random, 1, 3)) { // Increase chance to spawn vines, 1 in 3 for more vines
                     treeBuilder.getFractalLeaves()
                                .setSpookyVineBuilder(new SpookyVineBuilder().setVineMaterials(
-                                                                                    Material.DARK_OAK_FENCE, Material.OAK_FENCE, Material.SPRUCE_FENCE)
+                                                                                    Material.DARK_OAK_FENCE, Material.SPRUCE_FENCE, Material.OAK_FENCE)
                                                                             .setVineLengthRange(6, 12)
                                                                             .setDecorationChance(0.05, 0.02)) // Reduce decoration chance
                                .buildSpookyVines(random);
                 }
+
+                // Replace blocks around the tree trunk with mixed materials
+                replaceBlocksAroundTree(data, sLoc, random);
+
+                // Generate small warped wart trees beneath the canopy
+                generateWarpedWartTrees(tw, random, data, sLoc);
             }
         }
 
-        // Add smaller spooky forest trees or decorations
-        SimpleLocation[] decorations = GenUtils.randomObjectPositions(tw, data.getChunkX(), data.getChunkZ(), 7);
+        // Generate Warped Nylium patches after all the trees have been placed
+        generateWarpedNyliumPatches(tw, random, data);
+    }
 
-        for (SimpleLocation sLoc : decorations) {
-            int decorationY = GenUtils.getHighestGround(data, sLoc.getX(), sLoc.getZ());
-            sLoc.setY(decorationY);
+    private void generateWarpedWartTrees(TerraformWorld tw, Random random, PopulatorDataAbstract data, SimpleLocation sLoc) {
+        int numSmallTrees = GenUtils.randInt(random, 3, 5); // Random number of small trees to spawn
 
-            if (data.getBiome(sLoc.getX(), sLoc.getZ()) == getBiome()
-                && BlockUtils.isDirtLike(data.getType(sLoc.getX(), sLoc.getY(), sLoc.getZ()))) {
+        for (int i = 0; i < numSmallTrees; i++) {
+            // Find a random position near the base of the spooky tree
+            int offsetX = GenUtils.randInt(random, -5, 5); // Random horizontal offset
+            int offsetZ = GenUtils.randInt(random, -5, 5); // Random horizontal offset
+            int x = sLoc.getX() + offsetX;
+            int z = sLoc.getZ() + offsetZ;
+            int y = GenUtils.getHighestGround(data, x, z);
 
-                // Add Amethyst Clusters, Warped Fungus, or other decorations
-                if (GenUtils.chance(random, 1, 5)) {
-                    data.setType(sLoc.getX(), sLoc.getY() + 1, sLoc.getZ(), Material.LARGE_AMETHYST_BUD);
-                } else if (GenUtils.chance(random, 1, 10)) {
-                    data.setType(sLoc.getX(), sLoc.getY() + 1, sLoc.getZ(), Material.WARPED_FUNGUS);
-                } else if (GenUtils.chance(random, 1, 8)) {
-                    data.setType(sLoc.getX(), sLoc.getY() + 1, sLoc.getZ(), Material.ALLIUM);
-                } else {
-                    // Spawn smaller spooky trees
-                    new NewFractalTreeBuilder(FractalTypes.Tree.SPOOKY_TREE)
-                            .setOriginalTrunkLength(4) // Shorter tree
-                            .build(tw, new SimpleBlock(data, sLoc.getX(), sLoc.getY(), sLoc.getZ()));
+            // Ensure the block is dirt-like and has air above it for tree placement
+            if (BlockUtils.isDirtLike(data.getType(x, y, z)) && isAirAbove(data, x, y, z)) {
+                // Generate the trunk (warped stems)
+                int trunkHeight = GenUtils.randInt(random, 6, 9); // Random trunk height between 6 and 9 blocks
+                for (int t = 0; t < trunkHeight; t++) {
+                    SimpleBlock trunkBlock = new SimpleBlock(data, x, y + t, z);
+                    if (trunkBlock.getType() == Material.AIR || BlockUtils.replacableByTrees.contains(trunkBlock.getType())) {
+                        trunkBlock.setType(Material.WARPED_STEM); // Place trunk (stem)
+                    }
                 }
 
-                // Place twisting vines growing from the ground
-                if (isAirAbove(data, sLoc.getX(), sLoc.getY(), sLoc.getZ())) {
-                    data.setType(sLoc.getX(), sLoc.getY() + 1, sLoc.getZ(), Material.TWISTING_VINES);
+                // Now build the canopy at the correct height, above the trunk
+                FractalLeaves leavesBuilder = new FractalLeaves()
+                        .setMaterial(Material.WARPED_WART_BLOCK)
+                        .setMinWartHeight(6) // Set the min height to 6 blocks
+                        .setMaxWartHeight(9) // Set the max height to 9 blocks
+                        .setWartDensity(0.7f) // Adjust density of warped wart blocks
+                        .setCanopyRadius(3); // Small canopy radius for small tree
+
+                // Place the canopy above the top of the trunk
+                int canopyBaseHeight = y + trunkHeight; // Base height of the canopy should be trunkHeight above ground
+                leavesBuilder.placeSmallWarpedWartBlocks(tw, canopyBaseHeight, new SimpleBlock(data, x, canopyBaseHeight, z), 0.1f);
+            }
+        }
+    }
+
+
+
+
+    private void replaceBlocksAroundTree(@NotNull PopulatorDataAbstract data, @NotNull SimpleLocation treeLoc, @NotNull Random random) {
+        int radius = GenUtils.randInt(random, 8, 15); // Randomize radius for variation
+        SimpleBlock center = new SimpleBlock(data, treeLoc.getX(), treeLoc.getY(), treeLoc.getZ());
+
+        // Materials to be mixed around the tree
+        Material[] groundMaterials = {
+                Material.PODZOL, Material.COARSE_DIRT, Material.DIRT_PATH, Material.BLUE_TERRACOTTA, Material.MUD
+        };
+
+        int materialIndex = 0;  // Start cycling through materials
+
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dz = -radius; dz <= radius; dz++) {
+                SimpleBlock target = center.getRelative(dx, 0, dz);
+
+                // Only replace dirt-like blocks
+                if (BlockUtils.isDirtLike(target.getType())) {
+
+                    // Select the current material from the list
+                    Material replacementMaterial = groundMaterials[materialIndex % groundMaterials.length];
+                    target.setType(replacementMaterial);
+
+                    // Randomly skip 2 to 3 materials to add variation
+                    materialIndex += GenUtils.randInt(random, 2, 3);
                 }
             }
         }
     }
+
+    private void generateWarpedNyliumPatches(@NotNull TerraformWorld tw, @NotNull Random random, @NotNull PopulatorDataAbstract data) {
+        // Define the cluster size and spread of the Warped Nylium patches
+        int clusterCount = GenUtils.randInt(random, 2, 3); // Number of patches to generate
+        int patchRadius = GenUtils.randInt(random, 3, 5);  // Radius of each patch
+
+        // Loop to generate a certain number of clusters in the chunk
+        for (int i = 0; i < clusterCount; i++) {
+            // Get random surface coordinates for the center of the patch
+            int[] surfaceCoords = GenUtils.randomSurfaceCoordinates(random, data);
+            SimpleLocation patchCenter = new SimpleLocation(
+                    surfaceCoords[0],
+                    GenUtils.getHighestGround(data, surfaceCoords[0], surfaceCoords[2]),
+                    surfaceCoords[2]
+            );
+
+            // Get Y position for the patch center
+            int patchY = patchCenter.getY();
+
+            // Create the Warped Nylium patch
+            for (int dx = -patchRadius; dx <= patchRadius; dx++) {
+                for (int dz = -patchRadius; dz <= patchRadius; dz++) {
+                    SimpleBlock target = new SimpleBlock(
+                            data,
+                            patchCenter.getX() + dx,
+                            patchY,
+                            patchCenter.getZ() + dz
+                    );
+
+                    // Only replace dirt-like or grass-like blocks
+                    if (BlockUtils.isDirtLike(target.getType()) || target.getType() == Material.GRASS_BLOCK) {
+                        // Check to ensure patch forms a circle-like shape
+                        if (Math.sqrt(dx * dx + dz * dz) <= patchRadius) {
+                            target.setType(Material.WARPED_NYLIUM);  // Set Warped Nylium block
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     // Helper method to check if air is above a block
     private boolean isAirAbove(PopulatorDataAbstract data, int x, int y, int z) {

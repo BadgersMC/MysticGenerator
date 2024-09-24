@@ -36,9 +36,15 @@ public class FractalLeaves implements Cloneable {
     public int numYSegments = 5;
     public float radiusZ = 4;
     public int offsetY = 0;
-    public Material[] material = new Material[] {Material.OAK_LEAVES};
+    public Material[] material = new Material[]{Material.OAK_LEAVES};
     int oriY;
     int maxHeight;
+    private int minWartHeight;
+    private int maxWartHeight;
+    private float wartNoiseMultiplier = 0.7f; // Default value for wart density
+    private float shroomlightChance = 0.1f; // Default value of 10% for shroomlight placement
+    private int minTrunkHeight = 5;
+    private int maxTrunkHeight = 10;
     TerraformWorld tw;
     boolean semiSphereLeaves = false;
     float leafNoiseMultiplier = 0.7f;
@@ -56,9 +62,29 @@ public class FractalLeaves implements Cloneable {
     private final HashSet<SimpleBlock> placedLeafBlocks = new HashSet<>();
     private SpookyVineBuilder spookyVineBuilder;
 
+
     // Set the Spooky Vine Builder
     public FractalLeaves setSpookyVineBuilder(SpookyVineBuilder builder) {
         this.spookyVineBuilder = builder;
+        return this;
+    }
+
+    // Method to set the chance of placing shroomlights
+    public FractalLeaves setShroomlightChance(float chance) {
+        this.shroomlightChance = chance;
+        return this;
+    }
+
+    // Method to set the density of warped wart blocks
+    public FractalLeaves setWartDensity(float wartDensity) {
+        this.wartNoiseMultiplier = wartDensity;  // Set warped wart density
+        return this;
+    }
+
+    // Method to set trunk height range
+    public FractalLeaves setTrunkHeightRange(int minHeight, int maxHeight) {
+        this.minTrunkHeight = minHeight;
+        this.maxTrunkHeight = maxHeight;
         return this;
     }
 
@@ -70,12 +96,22 @@ public class FractalLeaves implements Cloneable {
 
         // Loop through all placed leaf blocks and attempt to hang vines
         for (SimpleBlock leafBlock : placedLeafBlocks) {
-            // Only place vines if there's air below the leaf block
             SimpleBlock belowBlock = leafBlock.getRelative(0, -1, 0);
             if (belowBlock.isAir()) {
                 spookyVineBuilder.buildVine(belowBlock, rand);
             }
         }
+    }
+
+    public FractalLeaves setMinWartHeight(int minWartHeight) {
+        this.minWartHeight = minWartHeight;
+        return this;
+    }
+
+    // Set maximum height for leaves placement
+    public FractalLeaves setMaxWartHeight(int maxWartHeight) {
+        this.maxWartHeight = maxWartHeight;
+        return this;
     }
 
     public void purgeOccupiedLeavesCache() {
@@ -239,6 +275,66 @@ public class FractalLeaves implements Cloneable {
                 sb.setType(Material.WATER);
             } else {
                 sb.setType(material);
+            }
+        }
+    }
+
+    public FractalLeaves setCanopyRadius(float radius) {
+        this.radiusX = radius;
+        this.radiusY = radius;
+        this.radiusZ = radius;
+        return this;
+    }
+
+    // guess whos back, back again, Badgers back, tell yo friends
+    public void placeSmallWarpedWartBlocks(TerraformWorld tw, int oriY, @NotNull SimpleBlock centre, float defaultShroomlightChance) {
+        this.tw = tw;
+        this.oriY = oriY;
+        this.maxHeight = oriY + GenUtils.randInt(rand, 6, 9); // Set height between 6 to 9 blocks
+
+        FastNoise noiseGen = NoiseCacheHandler.getNoise(tw, NoiseCacheEntry.FRACTALTREES_LEAVES_NOISE, world -> {
+            FastNoise n = new FastNoise((int) world.getSeed());
+            n.SetFractalOctaves(5);
+            n.SetNoiseType(FastNoise.NoiseType.SimplexFractal);
+            return n;
+        });
+        noiseGen.SetFrequency(leafNoiseFrequency);
+
+        float radiusX = 3.0f; // Adjust for small tree
+        float radiusY = 2.0f; // Small canopy
+        float radiusZ = 3.0f; // Adjust for small tree
+        this.setRadiusX(radiusX).setRadiusY(radiusY).setRadiusZ(radiusZ); // Set the canopy size
+
+        ArrayList<SimpleBlock> changed = new ArrayList<>();
+
+        for (int y = 0; y <= radiusY; y++) {
+            for (int x = -Math.round(radiusX); x <= radiusX; x++) {
+                for (int z = -Math.round(radiusZ); z <= radiusZ; z++) {
+                    SimpleBlock relativeBlock = centre.getRelative(x, y, z);
+
+                    if (relativeBlock.getY() > maxHeight) {
+                        return;
+                    }
+
+                    // Apply noise and set warped wart blocks as leaves
+                    double equationResult = Math.pow(x, 2) / Math.pow(radiusX, 2)
+                                            + Math.pow(y, 2) / Math.pow(radiusY, 2)
+                                            + Math.pow(z, 2) / Math.pow(radiusZ, 2);
+
+                    if (equationResult <= 1 + wartNoiseMultiplier * noiseGen.GetNoise(relativeBlock.getX(),
+                            relativeBlock.getY(),
+                            relativeBlock.getZ())) {
+
+                        if (!relativeBlock.isSolid()) {
+                            relativeBlock.setType(Material.WARPED_WART_BLOCK);
+
+                            // Randomly place shroomlights within the canopy based on the set chance
+                            if (GenUtils.chance(rand, (int) (shroomlightChance * 100), 100)) {
+                                relativeBlock.setType(Material.SHROOMLIGHT);
+                            }
+                        }
+                    }
+                }
             }
         }
     }

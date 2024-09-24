@@ -78,6 +78,10 @@ public class FractalTreeBuilder {
     private SimpleBlock beeHive;
     private double initialAngle;
     private SpookyVineBuilder spookyVineBuilder;
+    private int minTrunkHeight;
+    private int maxTrunkHeight;
+
+
 
     private int initialHeight;
     private boolean heightGradientChecked = false;
@@ -86,7 +90,11 @@ public class FractalTreeBuilder {
         this.spookyVineBuilder = spookyVineBuilder;
         return this;
     }
-
+    public FractalTreeBuilder setTrunkHeightRange(int minTrunkHeight, int maxTrunkHeight) {
+        this.minTrunkHeight = minTrunkHeight;
+        this.maxTrunkHeight = maxTrunkHeight;
+        return this;
+    }
 
     public FractalTreeBuilder(FractalTypes.@NotNull Tree type) {
         switch (type) {
@@ -603,6 +611,17 @@ public class FractalTreeBuilder {
                                                             .setVineLengthRange(4, 8)
                                                             .setVineMaterials(Material.COBWEB, Material.VINE)
                                                             .setDecorationChance(5, 1));
+            case GIANT_WARPED_FUNGUS:
+                this.setTrunkType(Material.WARPED_STEM)
+                    .setFractalLeaves(new FractalLeaves()
+                            .setMaterial(Material.WARPED_WART_BLOCK)  // Set leaves to warped wart blocks
+                            .setMinWartHeight(6)  // Minimum height for the fungus
+                            .setMaxWartHeight(9)  // Maximum height for the fungus
+                            .setCanopyRadius(3)  // Adjust canopy radius
+                            .setWartDensity(0.7f)  // Adjust density for warped fungus leaves
+                            .setShroomlightChance(0.1f) // 10% chance to place shroomlights within the canopy
+                    )
+                    .setTrunkHeightRange(6, 9); // Trunk height between 6 and 9 blocks
                 break;
         }
     }

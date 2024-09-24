@@ -52,7 +52,7 @@ public class BlockUtils {
             Material.FLOWERING_AZALEA_LEAVES,
             Material.BROWN_MUSHROOM,
             Material.RED_MUSHROOM,
-            Material.GRASS,
+            Material.SHORT_GRASS,
             Material.FERN,
             Material.DEAD_BUSH,
             Material.VINE,
@@ -214,7 +214,7 @@ public class BlockUtils {
             Material.FLOWERING_AZALEA,
             Material.BIG_DRIPLEAF,
             Material.BIG_DRIPLEAF_STEM,
-            Material.GRASS,
+            Material.SHORT_GRASS,
             Material.TALL_GRASS,
             Material.ICE,
             Material.PACKED_ICE,
@@ -1525,7 +1525,7 @@ public class BlockUtils {
 
     public static boolean emitsLight(@NotNull Material mat) {
         return switch (mat) {
-            case TORCH, SEA_PICKLE, SEA_LANTERN, GLOWSTONE, LANTERN, LAVA, CAMPFIRE, REDSTONE_LAMP, FIRE -> true;
+            case TORCH, SEA_PICKLE, SEA_LANTERN, GLOWSTONE, LANTERN, LAVA, CAMPFIRE, REDSTONE_LAMP, FIRE, PEARLESCENT_FROGLIGHT, VERDANT_FROGLIGHT, OCHRE_FROGLIGHT -> true;
             default -> false;
         };
     }
@@ -1790,6 +1790,7 @@ public class BlockUtils {
             deepslateMap.put("DEEPSLATE_" + target, mat);
             return mat;
         }
+
     }
 
 }

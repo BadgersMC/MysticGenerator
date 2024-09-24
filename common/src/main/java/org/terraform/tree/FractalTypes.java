@@ -330,7 +330,8 @@ public class FractalTypes {
         GIANT_PUMPKIN,
         ANDESITE_PETRIFIED_SMALL,
         GRANITE_PETRIFIED_SMALL,
-        DIORITE_PETRIFIED_SMALL;
+        DIORITE_PETRIFIED_SMALL,
+        GIANT_WARPED_FUNGUS;
 
         private final NewFractalTreeBuilder[] builders;
         private SpookyVineBuilder spookyVineBuilder;
@@ -401,7 +402,7 @@ public class FractalTypes {
         MEDIUM_BROWN_FUNNEL_MUSHROOM,
         GIANT_BROWN_MUSHROOM,
         GIANT_BROWN_FUNNEL_MUSHROOM,
-        GIANT_RED_MUSHROOM
+        GIANT_RED_MUSHROOM,
     }
 
     public enum MushroomCap {
